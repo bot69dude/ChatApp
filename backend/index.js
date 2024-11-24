@@ -6,6 +6,7 @@ const authRoutes = require("./src/routes/Auth.route");
 const messageRoutes = require("./src/routes/message.route");
 const { ConnectDB } = require("./src/lib/db");
 const { App, server } = require("./src/lib/socket");
+const path = require("path");
 
 // Middleware setup
 App.use(express.json({ limit: "10mb" }));
@@ -19,6 +20,14 @@ App.use(cors({
 // Routes
 App.use("/api/auth", authRoutes);
 App.use("/api/messages", messageRoutes);
+
+if (process.env.NODE_ENV === "production") {
+    App.use(express.static(path.join(__dirname, "../client/dist")));
+  
+    App.get("*", (req, res) => {
+      res.sendFile(path.join(__dirname, "../client", "dist", "index.html"));
+    });
+  }
 
 // Start server function
 async function startServer() {
